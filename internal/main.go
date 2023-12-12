@@ -33,28 +33,72 @@ func listCompany(c *gin.Context) {
 }
 
 func addCompany(c *gin.Context) {
-	// var com models.Company
-	var param struct {
-		CODE string `json:"code"`
+	var body struct {
+		CODE string `json:"code" binding:"required"`
 		NAME string `json:"name"`
 	}
 
-	if err := c.BindJSON(&param); err != nil {
+	// 消除空格
+	err := c.BindJSON(&body)
+	companyCode := strings.ReplaceAll(body.CODE, " ", "")
+	name := strings.ReplaceAll(body.NAME, " ", "")
+
+	// 排除為空字串
+	if companyCode == "" || name == "" {
+		err := errors.New("request missed companyCode or name")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 檢查CompanyCode 是否重複
+	companyCheck := models.CheckCompanyHandler(companyCode)
+	if companyCheck {
+		err := errors.New("CompanyCode existed already")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	} else {
-		models.AddCompanyHandler(param)
-		c.IndentedJSON(http.StatusCreated, param)
+		models.AddCompanyHandler(companyCode, name)
+		c.IndentedJSON(http.StatusCreated, body)
 	}
 }
 
 func addPeople(c *gin.Context) {
-	var p models.People
+	var body struct {
+		NAME        string `json:"name" binding:"required"`
+		COMPANYCODE string `json:"company_code" binding:"required"`
+		AGE         int    `json:"age"`
+		GENDER      string `json:"gender"`
+	}
 
-	if err := c.BindJSON(&p); err != nil {
+	// 消除空格
+	err := c.BindJSON(&body)
+	companyCode := strings.ReplaceAll(body.COMPANYCODE, " ", "")
+	name := strings.ReplaceAll(body.NAME, " ", "")
+
+	// 排除為空字串
+	if companyCode == "" || name == "" {
+		err := errors.New("request missed name or companyCode")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 檢查CompanyCode 是否存在
+	companyCheck := models.CheckCompanyHandler(body.COMPANYCODE)
+	if companyCheck {
+		err := errors.New("CompanyCode not found")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	} else {
-		models.AddPeopleHandler(p)
-		c.IndentedJSON(http.StatusCreated, p)
+		models.AddPeopleHandler(name, companyCode, body.AGE, body.GENDER)
+		c.IndentedJSON(http.StatusCreated, body)
 	}
 }
 
@@ -113,11 +157,23 @@ func checkList(c *gin.Context) {
 
 func updatePeople(c *gin.Context) {
 	var body struct {
-		NAME string `json:"name"`
+		NAME string `json:"name" binding:"required"`
 		AGE  int    `json:"age"`
 	}
 
-	if err := c.BindJSON(&body); err != nil {
+	// 消除空格
+	err := c.BindJSON(&body)
+	name := strings.ReplaceAll(body.NAME, " ", "")
+
+	// 排除為空字串
+	if name == "" {
+		err = errors.New("request missed name")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	///// 這邊怪怪的
+	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	} else {
 		models.UpdatePeopleHandler(body.AGE, body.NAME)

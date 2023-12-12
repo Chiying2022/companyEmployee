@@ -50,7 +50,7 @@ func CompanyHandler() []Company {
 	return companyTry
 }
 
-func AddCompanyHandler(com Company) {
+func AddCompanyHandler(companyCode string, name string) {
 	db, err := sql.Open("mysql", dbuser+":safesync"+"@tcp(10.1.103.111:3306)/"+dbname)
 	if err != nil {
 		fmt.Println("Err", err.Error())
@@ -67,7 +67,7 @@ func AddCompanyHandler(com Company) {
 			?
 		)
 	`
-	insert, err := db.Query(execSQL, com.CODE, com.NAME)
+	insert, err := db.Query(execSQL, companyCode, name)
 
 	if err != nil {
 		fmt.Println("Err", err.Error())
@@ -75,7 +75,7 @@ func AddCompanyHandler(com Company) {
 	defer insert.Close()
 }
 
-func AddPeopleHandler(p People) {
+func AddPeopleHandler(NAME string, COMPANYCODE string, AGE int, GENDER string) {
 	db, err := sql.Open("mysql", dbuser+":safesync"+"@tcp(10.1.103.111:3306)/"+dbname)
 	if err != nil {
 		fmt.Println("Err", err.Error())
@@ -96,7 +96,7 @@ func AddPeopleHandler(p People) {
 			?
 		)
 	`
-	insert, err := db.Query(execSQL, p.NAME, p.COMPANYCODE, p.AGE, p.GENDER)
+	insert, err := db.Query(execSQL, NAME, COMPANYCODE, AGE, GENDER)
 
 	if err != nil {
 		fmt.Println("Err", err.Error())
