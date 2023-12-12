@@ -1,13 +1,18 @@
 package models
 
-import "time"
+type Company struct {
+	CODE string `json:"code"`
+	NAME string `json:"name"`
+}
 
-type Bank struct {
-	ID      int       `json:"id"`
-	ACCOUNT string    `json:"account"`
-	PID     string    `json:"pid"`
-	CLIENT  int       `json:"client_type"`
-	OPER    int       `json:"operation_type"`
-	CRE     time.Time `json:"created_time"`
-	IP      string    `json:"ip"`
+type People struct {
+	NAME        string `json:"name"`
+	COMPANYCODE string `json:"company_code"`
+	AGE         int    `json:"age"`
+	GENDER      string `json:"gender"`
+}
+
+type Peoplelist struct {
+	ID   string `json:"id"`
+	NAME string `json:"name"`
 }
