@@ -2,15 +2,53 @@ package models
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
+	"log"
 	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
-
-	"fmt"
+	"github.com/jmoiron/sqlx"
 )
 
 const dbuser = "root"
 const dbname = "central"
+
+var db *sqlx.DB
+
+const (
+	username = "root"
+	password = "safesync"
+	host     = "10.1.103.111"
+	port     = 3306
+	dbName   = "central"
+)
+
+func PeopleHandler(name string) int {
+	db, err := sqlx.Connect("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", username, password, host, port, dbName))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Successfully connected to the database")
+
+	var people []People
+	err = db.Select(&people, "SELECT name, age FROM employee WHERE name = ?", name)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(people) // 輸出搜尋結果
+	return 123
+
+}
 
 func CompanyHandler() []Company {
 	db, err := sql.Open("mysql", dbuser+":safesync"+"@tcp(10.1.103.111:3306)/"+dbname)
@@ -67,12 +105,11 @@ func AddCompanyHandler(companyCode string, name string) {
 			?
 		)
 	`
-	insert, err := db.Query(execSQL, companyCode, name)
+	_, err = db.Exec(execSQL, companyCode, name)
 
 	if err != nil {
 		fmt.Println("Err", err.Error())
 	}
-	defer insert.Close()
 }
 
 func AddPeopleHandler(NAME string, COMPANYCODE string, AGE int, GENDER string) {
@@ -96,12 +133,12 @@ func AddPeopleHandler(NAME string, COMPANYCODE string, AGE int, GENDER string) {
 			?
 		)
 	`
-	insert, err := db.Query(execSQL, NAME, COMPANYCODE, AGE, GENDER)
+	_, err = db.Exec(execSQL, NAME, COMPANYCODE, AGE, GENDER)
 
 	if err != nil {
 		fmt.Println("Err", err.Error())
 	}
-	defer insert.Close()
+
 }
 
 func GetPeopleByCompanyHandler(companyCode string, page string, size string) ([]interface{}, int) {
@@ -228,10 +265,10 @@ func GetPeopleByCompanyHandler(companyCode string, page string, size string) ([]
 
 }
 
-func UpdatePeopleHandler(age int, name string) {
+func UpdatePeopleHandler(age int, name string) (err error) {
 	db, err := sql.Open("mysql", dbuser+":safesync"+"@tcp(10.1.103.111:3306)/"+dbname)
 	if err != nil {
-		fmt.Println("Err", err.Error())
+		return fmt.Errorf("error opening database: %s", err)
 	}
 
 	defer db.Close()
@@ -242,14 +279,19 @@ func UpdatePeopleHandler(age int, name string) {
 			age = ?
 		WHERE name = ?
 	`
-	_, err = db.Exec(execSQL, age, name)
+	results, err := db.Exec(execSQL, age, name)
 
 	if err != nil {
-		fmt.Println("Err", err.Error())
-		return
+		return fmt.Errorf("error updating person: %s", err)
+	}
+
+	rowsAffected, _ := results.RowsAffected()
+	if rowsAffected == 0 {
+		return errors.New("person not found")
 	}
 
 	fmt.Println("Update successful")
+	return
 
 }
 
@@ -318,10 +360,40 @@ func CheckCompanyHandler(companyCode string) bool {
 	return true
 }
 
-// 需抓取 params -> 已抓到
-// 如果搜尋結果是多筆? -> ok
-// 如何只取 response 只需要的資訊 -> 解決到可能不聰明
-// 未加分頁 ->
+func UpdatePeopleHandlerTwo(age int, name string) (err error) {
+	db, err := sqlx.Open("mysql", dbuser+":safesync"+"@tcp(10.1.103.111:3306)/"+dbname)
+	if err != nil {
+		return fmt.Errorf("error opening database: %s", err)
+	}
+
+	defer db.Close()
+
+	execSQL := `
+		UPDATE employee
+		SET
+			age = :age
+		WHERE name = :name
+	`
+
+	results, err := db.NamedExec(execSQL, map[string]interface{}{
+		"name": name,
+		"age":  age,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error updating person: %s", err)
+	}
+
+	rowsAffected, _ := results.RowsAffected()
+	if rowsAffected == 0 {
+		return errors.New("person not found")
+	}
+
+	fmt.Println("Update successful")
+	return
+
+}
+
 // SELECT id, title FROM books ORDER BY id ASC LIMIT 10 OFFSET 10;
 // offset := (page - 1) * pageSize
 // totalPage := (totalCount + pageSize - 1) / pageSize

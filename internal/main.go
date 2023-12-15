@@ -1,9 +1,9 @@
 package main
 
 import (
+	"companyEmployee/models"
 	"errors"
 	"net/http"
-	"sqltest/models"
 	"strconv"
 	"strings"
 
@@ -13,14 +13,24 @@ import (
 func main() {
 	router := gin.Default()
 	router.POST("/api/company", addCompany)
-	router.POST("/api/people", addPeople) // pagenation (offset/limite) + 撈出同公司的員工list -----> 如果 offset/limite 沒填呢？
+	router.POST("/api/people", addPeople)
 	router.GET("/api/list", checkList)
 	router.PUT("/api/update", updatePeople)
-	router.Run("localhost:8080")
 
-	/// try
-	// router.GET("/api/company", listCompany)
-	// router.GET("/api/listlist", listlist)
+	// ------------
+	// router.GET("/api/listcompany", listCompany) // using for test
+	// router.GET("/api/listpeople", listPeople)   // using for test
+	router.Run("localhost:8080")
+}
+
+func listPeople(c *gin.Context) {
+	name := c.Query("name")
+	results := models.PeopleHandler(name)
+	if results != 123 {
+		c.AbortWithStatus(http.StatusNotFound)
+	} else {
+		c.IndentedJSON(http.StatusOK, results)
+	}
 }
 
 func listCompany(c *gin.Context) {
@@ -117,8 +127,12 @@ func checkList(c *gin.Context) {
 
 	// 檢查是否有填CompanyCode 參數
 	if len(CompanyCode) == 0 {
-		err := errors.New("CompanyCode is required")
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// err := errors.New("CompanyCode is required")
+		response := map[string]string{
+			"error": "CompanyCode is required",
+		}
+		// err := fmt.Errorf("error: %s", "CompanyCode is required")
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -172,11 +186,19 @@ func updatePeople(c *gin.Context) {
 		return
 	}
 
-	///// 這邊怪怪的
+	// BindJSON fail
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
-	} else {
-		models.UpdatePeopleHandler(body.AGE, body.NAME)
-		c.IndentedJSON(http.StatusCreated, body)
 	}
+
+	// 名字去掉空白後 update + 沒有找到這個人跳錯
+	results := models.UpdatePeopleHandler(body.AGE, name) // UpdatePeopleHandlerTwo -> db.NamedExec
+	if results != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"message": "fail, person not found",
+		})
+		return
+	}
+
+	c.IndentedJSON(http.StatusCreated, body)
 }
