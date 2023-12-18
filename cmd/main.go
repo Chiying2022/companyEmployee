@@ -3,6 +3,7 @@ package main
 import (
 	"companyEmployee/cmd/handler"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -20,7 +21,10 @@ func main() {
 	// ------------
 	// router.GET("/api/listcompany", listCompany) // using for test
 	// router.GET("/api/listpeople", listPeople)   // using for test
-	router.Run("localhost:8080")
+	err := router.Run()
+	if err != nil {
+		log.Fatal("Failed to start the server: ", err)
+	}
 }
 
 func listPeople(c *gin.Context) {
