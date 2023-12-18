@@ -1,7 +1,7 @@
 package main
 
 import (
-	"companyEmployee/models"
+	"companyEmployee/cmd/handler"
 	"errors"
 	"net/http"
 	"strconv"
@@ -25,7 +25,7 @@ func main() {
 
 func listPeople(c *gin.Context) {
 	name := c.Query("name")
-	results := models.PeopleHandler(name)
+	results := handler.PeopleHandler(name)
 	if results != 123 {
 		c.AbortWithStatus(http.StatusNotFound)
 	} else {
@@ -34,7 +34,7 @@ func listPeople(c *gin.Context) {
 }
 
 func listCompany(c *gin.Context) {
-	companyList := models.CompanyHandler()
+	companyList := handler.CompanyHandler()
 	if companyList == nil || len(companyList) == 0 {
 		c.AbortWithStatus(http.StatusNotFound)
 	} else {
@@ -61,7 +61,7 @@ func addCompany(c *gin.Context) {
 	}
 
 	// 檢查CompanyCode 是否重複
-	companyCheck := models.CheckCompanyHandler(companyCode)
+	companyCheck := handler.CheckCompanyHandler(companyCode)
 	if companyCheck {
 		err := errors.New("CompanyCode existed already")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -71,7 +71,7 @@ func addCompany(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	} else {
-		models.AddCompanyHandler(companyCode, name)
+		handler.AddCompanyHandler(companyCode, name)
 		c.IndentedJSON(http.StatusCreated, body)
 	}
 }
@@ -97,7 +97,7 @@ func addPeople(c *gin.Context) {
 	}
 
 	// 檢查CompanyCode 是否存在
-	companyCheck := models.CheckCompanyHandler(body.COMPANYCODE)
+	companyCheck := handler.CheckCompanyHandler(body.COMPANYCODE)
 	if companyCheck {
 		err := errors.New("CompanyCode not found")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -107,7 +107,7 @@ func addPeople(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	} else {
-		models.AddPeopleHandler(name, companyCode, body.AGE, body.GENDER)
+		handler.AddPeopleHandler(name, companyCode, body.AGE, body.GENDER)
 		c.IndentedJSON(http.StatusCreated, body)
 	}
 }
@@ -137,7 +137,7 @@ func checkList(c *gin.Context) {
 	}
 
 	// 檢查CompanyCode 是否存在
-	companyCheck := models.CheckCompanyHandler(CompanyCode)
+	companyCheck := handler.CheckCompanyHandler(CompanyCode)
 
 	if !companyCheck {
 		err := errors.New("CompanyCode not found")
@@ -146,7 +146,7 @@ func checkList(c *gin.Context) {
 	}
 
 	// 開始撈出清單 (page or pagesize 指填入任一或是都不填 一律回應全部清單)
-	peopleList, count := models.GetPeopleByCompanyHandler(CompanyCode, Page, Size)
+	peopleList, count := handler.GetPeopleByCompanyHandler(CompanyCode, Page, Size)
 
 	// 當填入的參數都正確時 卻沒找到相對應資料
 	if peopleList != nil && count == 0 {
@@ -192,7 +192,7 @@ func updatePeople(c *gin.Context) {
 	}
 
 	// 名字去掉空白後 update + 沒有找到這個人跳錯
-	results := models.UpdatePeopleHandler(body.AGE, name) // UpdatePeopleHandlerTwo -> db.NamedExec
+	results := handler.UpdatePeopleHandler(body.AGE, name) // UpdatePeopleHandlerTwo -> db.NamedExec
 	if results != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"message": "fail, person not found",

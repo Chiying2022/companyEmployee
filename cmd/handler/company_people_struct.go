@@ -1,4 +1,4 @@
-package models
+package handler
 
 type Company struct {
 	CODE string `json:"code"`
