@@ -48,14 +48,14 @@ func listCompany(c *gin.Context) {
 
 func addCompany(c *gin.Context) {
 	var body struct {
-		CODE string `json:"code" binding:"required"`
-		NAME string `json:"name"`
+		Code string `json:"code" binding:"required"`
+		Name string `json:"name"`
 	}
 
 	// 消除空格
 	err := c.BindJSON(&body)
-	companyCode := strings.ReplaceAll(body.CODE, " ", "")
-	name := strings.ReplaceAll(body.NAME, " ", "")
+	companyCode := strings.ReplaceAll(body.Code, " ", "")
+	name := strings.ReplaceAll(body.Name, " ", "")
 
 	// 排除為空字串
 	if companyCode == "" || name == "" {
@@ -82,16 +82,16 @@ func addCompany(c *gin.Context) {
 
 func addPeople(c *gin.Context) {
 	var body struct {
-		NAME        string `json:"name" binding:"required"`
-		COMPANYCODE string `json:"company_code" binding:"required"`
-		AGE         int    `json:"age"`
-		GENDER      string `json:"gender"`
+		Name        string `json:"name" binding:"required"`
+		CompanyCode string `json:"company_code" binding:"required"`
+		Age         int    `json:"age"`
+		Gender      string `json:"gender"`
 	}
 
 	// 消除空格
 	err := c.BindJSON(&body)
-	companyCode := strings.ReplaceAll(body.COMPANYCODE, " ", "")
-	name := strings.ReplaceAll(body.NAME, " ", "")
+	companyCode := strings.ReplaceAll(body.CompanyCode, " ", "")
+	name := strings.ReplaceAll(body.Name, " ", "")
 
 	// 排除為空字串
 	if companyCode == "" || name == "" {
@@ -101,7 +101,7 @@ func addPeople(c *gin.Context) {
 	}
 
 	// 檢查CompanyCode 是否存在
-	companyCheck := handler.CheckCompanyHandler(body.COMPANYCODE)
+	companyCheck := handler.CheckCompanyHandler(body.CompanyCode)
 	if companyCheck {
 		err := errors.New("CompanyCode not found")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -111,7 +111,7 @@ func addPeople(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	} else {
-		handler.AddPeopleHandler(name, companyCode, body.AGE, body.GENDER)
+		handler.AddPeopleHandler(name, companyCode, body.Age, body.Gender)
 		c.IndentedJSON(http.StatusCreated, body)
 	}
 }
@@ -131,11 +131,9 @@ func checkList(c *gin.Context) {
 
 	// 檢查是否有填CompanyCode 參數
 	if len(CompanyCode) == 0 {
-		// err := errors.New("CompanyCode is required")
 		response := map[string]string{
 			"error": "CompanyCode is required",
 		}
-		// err := fmt.Errorf("error: %s", "CompanyCode is required")
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -175,13 +173,13 @@ func checkList(c *gin.Context) {
 
 func updatePeople(c *gin.Context) {
 	var body struct {
-		NAME string `json:"name" binding:"required"`
-		AGE  int    `json:"age"`
+		Name string `json:"name" binding:"required"`
+		Age  int    `json:"age"`
 	}
 
 	// 消除空格
 	err := c.BindJSON(&body)
-	name := strings.ReplaceAll(body.NAME, " ", "")
+	name := strings.ReplaceAll(body.Name, " ", "")
 
 	// 排除為空字串
 	if name == "" {
@@ -196,7 +194,7 @@ func updatePeople(c *gin.Context) {
 	}
 
 	// 名字去掉空白後 update + 沒有找到這個人跳錯
-	results := handler.UpdatePeopleHandler(body.AGE, name) // UpdatePeopleHandlerTwo -> db.NamedExec
+	results := handler.UpdatePeopleHandler(body.Age, name) // UpdatePeopleHandlerTwo -> db.NamedExec
 	if results != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"message": "fail, person not found",

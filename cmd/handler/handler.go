@@ -78,7 +78,7 @@ func CompanyHandler() []Company {
 	companyTry := []Company{}
 	for results.Next() {
 		var com Company
-		err = results.Scan(&com.CODE)
+		err = results.Scan(&com.Code)
 
 		if err != nil {
 			panic(err.Error())
@@ -189,7 +189,7 @@ func GetPeopleByCompanyHandler(companyCode string, page string, size string) ([]
 		var peopleList []interface{}
 		for results.Next() {
 			var person Peoplelist
-			err := results.Scan(&person.ID, &person.NAME)
+			err := results.Scan(&person.Id, &person.Name)
 			if err != nil {
 				fmt.Println("Err", err.Error())
 				return nil, 0
@@ -227,7 +227,7 @@ func GetPeopleByCompanyHandler(companyCode string, page string, size string) ([]
 	var peopleList []interface{}
 	for results.Next() {
 		var person Peoplelist
-		err := results.Scan(&person.ID, &person.NAME)
+		err := results.Scan(&person.Id, &person.Name)
 		if err != nil {
 			fmt.Println("Err", err.Error())
 			return nil, 0
@@ -319,7 +319,7 @@ func countResults(companyCode string) []interface{} {
 	var peopleList []interface{}
 	for results.Next() {
 		var person Peoplelist
-		err := results.Scan(&person.ID, &person.NAME)
+		err := results.Scan(&person.Id, &person.Name)
 		if err != nil {
 			fmt.Println("Err", err.Error())
 			return nil

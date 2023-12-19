@@ -1,18 +1,18 @@
 package handler
 
 type Company struct {
-	CODE string `json:"code"`
-	NAME string `json:"name"`
+	Code string `json:"code"`
+	Name string `json:"name"`
 }
 
 type People struct {
-	NAME        string `json:"name"`
-	COMPANYCODE string `json:"company_code"`
-	AGE         int    `json:"age"`
-	GENDER      string `json:"gender"`
+	Name        string `json:"name"`
+	CompanyCode string `json:"company_code"`
+	Age         int    `json:"age"`
+	Gender      string `json:"gender"`
 }
 
 type Peoplelist struct {
-	ID   string `json:"id"`
-	NAME string `json:"name"`
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }
