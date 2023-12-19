@@ -88,7 +88,7 @@ func CompanyHandler() []Company {
 	return companyTry
 }
 
-func AddCompanyHandler(companyCode string, name string) {
+func AddCompanyHandler(companyCode string, name string) bool {
 	db, err := sql.Open("mysql", dbuser+":safesync"+"@tcp(10.1.103.111:3306)/"+dbname)
 	if err != nil {
 		fmt.Println("Err", err.Error())
@@ -109,10 +109,13 @@ func AddCompanyHandler(companyCode string, name string) {
 
 	if err != nil {
 		fmt.Println("Err", err.Error())
+		return false
 	}
+
+	return true
 }
 
-func AddPeopleHandler(NAME string, COMPANYCODE string, AGE int, GENDER string) {
+func AddPeopleHandler(NAME string, COMPANYCODE string, AGE int, GENDER string) bool {
 	db, err := sql.Open("mysql", dbuser+":safesync"+"@tcp(10.1.103.111:3306)/"+dbname)
 	if err != nil {
 		fmt.Println("Err", err.Error())
@@ -137,8 +140,10 @@ func AddPeopleHandler(NAME string, COMPANYCODE string, AGE int, GENDER string) {
 
 	if err != nil {
 		fmt.Println("Err", err.Error())
+		return false
 	}
 
+	return true
 }
 
 func GetPeopleByCompanyHandler(companyCode string, page string, size string) ([]interface{}, int) {

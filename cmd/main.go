@@ -52,8 +52,14 @@ func addCompany(c *gin.Context) {
 		Name string `json:"name"`
 	}
 
-	// 消除空格
 	err := c.BindJSON(&body)
+	if err != nil {
+		err := errors.New("failed to bind JSON")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 消除空格
 	companyCode := strings.ReplaceAll(body.Code, " ", "")
 	name := strings.ReplaceAll(body.Name, " ", "")
 
@@ -72,12 +78,12 @@ func addCompany(c *gin.Context) {
 		return
 	}
 
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-	} else {
-		handler.AddCompanyHandler(companyCode, name)
-		c.IndentedJSON(http.StatusCreated, body)
+	result := handler.AddCompanyHandler(companyCode, name)
+	if !result {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to add company"})
+		return
 	}
+	c.IndentedJSON(http.StatusCreated, body)
 }
 
 func addPeople(c *gin.Context) {
@@ -88,8 +94,14 @@ func addPeople(c *gin.Context) {
 		Gender      string `json:"gender"`
 	}
 
-	// 消除空格
 	err := c.BindJSON(&body)
+	if err != nil {
+		err := errors.New("failed to bind JSON")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 消除空格
 	companyCode := strings.ReplaceAll(body.CompanyCode, " ", "")
 	name := strings.ReplaceAll(body.Name, " ", "")
 
@@ -108,12 +120,14 @@ func addPeople(c *gin.Context) {
 		return
 	}
 
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-	} else {
-		handler.AddPeopleHandler(name, companyCode, body.Age, body.Gender)
-		c.IndentedJSON(http.StatusCreated, body)
+	result := handler.AddPeopleHandler(name, companyCode, body.Age, body.Gender)
+	if !result {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to add people"})
+		return
 	}
+
+	c.IndentedJSON(http.StatusCreated, body)
+
 }
 
 func checkList(c *gin.Context) {
@@ -177,8 +191,14 @@ func updatePeople(c *gin.Context) {
 		Age  int    `json:"age"`
 	}
 
-	// 消除空格
 	err := c.BindJSON(&body)
+	if err != nil {
+		err := errors.New("failed to bind JSON")
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 消除空格
 	name := strings.ReplaceAll(body.Name, " ", "")
 
 	// 排除為空字串
@@ -188,13 +208,8 @@ func updatePeople(c *gin.Context) {
 		return
 	}
 
-	// BindJSON fail
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-	}
-
 	// 名字去掉空白後 update + 沒有找到這個人跳錯
-	results := handler.UpdatePeopleHandler(body.Age, name) // UpdatePeopleHandlerTwo -> db.NamedExec
+	results := handler.UpdatePeopleHandler(body.Age, name)
 	if results != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"message": "fail, person not found",
