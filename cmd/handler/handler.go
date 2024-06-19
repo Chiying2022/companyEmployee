@@ -12,14 +12,6 @@ const dbname = "central"
 
 var db *sqlx.DB
 
-const (
-	username = "root"
-	password = "safesync"
-	host     = "10.1.103.111"
-	port     = 3306
-	dbName   = "central"
-)
-
 // func AddCompanyHandler(ctx context.Context, companyCode string, name string) (bool, error) {
 // 	db, err := getDB()
 // 	if err != nil {

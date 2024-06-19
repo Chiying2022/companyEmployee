@@ -251,24 +251,24 @@ func main() {
 	}
 }
 
-func listPeople(c *gin.Context) {
-	name := c.Query("name")
-	results := handler.PeopleHandler(name)
-	if results != 123 {
-		c.AbortWithStatus(http.StatusNotFound)
-	} else {
-		c.IndentedJSON(http.StatusOK, results)
-	}
-}
+// func listPeople(c *gin.Context) {
+// 	name := c.Query("name")
+// 	results := handler.PeopleHandler(name)
+// 	if results != 123 {
+// 		c.AbortWithStatus(http.StatusNotFound)
+// 	} else {
+// 		c.IndentedJSON(http.StatusOK, results)
+// 	}
+// }
 
-func listCompany(c *gin.Context) {
-	companyList := handler.CompanyHandler()
-	if companyList == nil || len(companyList) == 0 {
-		c.AbortWithStatus(http.StatusNotFound)
-	} else {
-		c.IndentedJSON(http.StatusOK, companyList)
-	}
-}
+// func listCompany(c *gin.Context) {
+// 	companyList := handler.CompanyHandler()
+// 	if companyList == nil || len(companyList) == 0 {
+// 		c.AbortWithStatus(http.StatusNotFound)
+// 	} else {
+// 		c.IndentedJSON(http.StatusOK, companyList)
+// 	}
+// }
 
 //	func loggEndpointURL(c *gin.Context) {
 //		c.Next()
