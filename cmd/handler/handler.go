@@ -2,6 +2,7 @@ package handler
 
 import (
 	"companyEmployee/model"
+	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -295,6 +296,7 @@ var db *sqlx.DB
 // }
 
 func TestHandler(name string) (company *model.Company, err error) {
+	fmt.Println("aaa")
 	dbx, _ := getDB()
 	query := `
 		SELECT
