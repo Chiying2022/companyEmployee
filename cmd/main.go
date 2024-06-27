@@ -1,15 +1,16 @@
 package main
 
 import (
-	"companyEmployee/cmd/handler"
-	"companyEmployee/cmd/response"
-	"companyEmployee/model"
+	"companyEmployee/cmd/delivery"
 	"fmt"
 	"log"
-	"net/http"
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	projectName = "companyEmployee"
 )
 
 type person struct {
@@ -81,175 +82,25 @@ func sum(a []int, c chan int) {
 }
 
 func main() {
-	a := []int{7, 2, 8, -9, 4, 0}
-	c := make(chan int)
-	go sum(a[:len(a)/2], c)
-	go sum(a[len(a)/2:], c)
-	x, y := <-c, <-c // receive from c
-	fmt.Println(x, y, x+y)
-	// 17 , -5 , 12
-	// go say("world") //開一個新的 Goroutines 執行
-	// say("hello")    //當前 Goroutines 執行
-
-	// 定義 a 為空介面
-	// var a interface{}
-	// var i int = 5
-	// s := "Hello world"
-	// a 可以儲存任意型別的數值
-	// a = i
-	// a = s
-
-	// fmt.Println(a)
-
-	// slice := []int{1, 2, 3, 4, 5, 7}
-	// fmt.Println("slice = ", slice)
-	// odd := filter(slice, isOdd) // 函式當做值來傳遞了
-	// fmt.Println("Odd elements of slice are: ", odd)
-	// even := filter(slice, isEven) // 函式當做值來傳遞了
-	// fmt.Println("Even elements of slice are: ", even)
-	// x := 3
-	// fmt.Println("x = ", x)    // 應該輸出 "x = 3"
-	// x1 := add1(&x)            //呼叫 add1(x)
-	// fmt.Println("x+1 = ", x1) // 應該輸出"x+1 = 4"
-	// fmt.Println("x = ", x)    // 應該輸出"x = 4"
-
-	// c := [...]int{4, 5, 6, 7, 8}
-	// fmt.Println(c)
-	// fmt.Println(len(c))
-
-	// numbers := make(map[string]int)
-	// var num map[string]int
-	// num = make(map[string]int)
-	// num["one"] = 1  //賦值
-	// num["ten"] = 10 //賦值
-	// num["three"] = 3
-
-	// fmt.Println(num)
-
-	// {"one" : 1, "ten":10, "three":3}
-	// err := handler.initDB()
-	// if err != nil {
-	// 	log.Fatalf("Failed to initialize the database: %v", err)
-	// }
-	// a := [10]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-
-	// b := []int{}
-	// c := []map[string]int{}
-	// var sliceOfMaps []map[string]int
-
-	// for _, result := range a {
-	// 	if result%2 == 0 {
-	// 		c = append(c, map[string]int{"偶數": result})
-	// 	}
-	// }
-
-	// fmt.Println("")
-	// fmt.Println(c)
-	// fmt.Println("")
-
-	// router := gin.New()
-	// mid1 := func(c *gin.Context) {
-	// 	fmt.Println("mid1 start")
-	// 	// c.Abort()
-	// 	c.Next()
-	// 	fmt.Println("mid1 end")
-	// }
-
-	// mid2 := func(c *gin.Context) {
-	// 	fmt.Println("mid2 start")
-	// 	// c.Abort()
-	// 	c.Next()
-	// 	// c.Abort()
-	// 	fmt.Println("mid2 end")
-	// }
-
-	// mid3 := func(c *gin.Context) {
-	// 	fmt.Println("mid3 start")
-	// 	// c.Abort()
-	// 	// c.Next()
-	// 	fmt.Println("mid3 end")
-	// }
-
-	// mid4 := func(c *gin.Context) {
-	// 	fmt.Println("mid4 start")
-	// 	// 加上條件判斷，如果不符合條件，則中止請求
-	// 	if !middleware.CheckCondition(c) {
-	// 		c.Abort()
-	// 		return
-	// 	}
-	// 	c.Next()
-	// 	fmt.Println("mid4 end")
-	// }
-
-	// BasicAuth := gin.BasicAuth(gin.Accounts{
-	// 	"lorem": "ipsum",
-	// })
-
-	// router.Use(mid1, mid2, mid3)
-	// router.GET("/", BasicAuth, mid4, func(c *gin.Context) {
-	// 	fmt.Println("process get request")
-	// 	c.JSON(http.StatusOK, "hello")
-	// })
-
-	// alphabetMap := make(map[string]bool)
-	// for _, r := range alphabetStr {
-	// 	c := string(r)
-	// 	alphabetMap[c] = true
-	// }
-	// fmt.Println(alphabetMap["x"])
-	// alphabetMap["x"] = false
-	// fmt.Println(alphabetMap["x"])
-
 	router := gin.Default()
-
-	// 定義一個切片
-	// weekdays := []string{"一 ", "二 ", "三 ", "四 ", "五 ", "六 ", "日 "}
-	// for _, weekday := range weekdays {
-	// 	fmt.Print(weekday)
-	// }
-
-	// fmt.Println("")
-	// fmt.Println("")
-
-	// weekdays := []string{"一 ", "二 ", "三 ", "四 ", "五 ", "六 ", "日 "}
-	// for _, weekday := range weekdays {
-	// 	fmt.Print(weekday)
-	// }
-
-	// 使用 for range 遍歷切片
-	// for _, num := range numbers {
-	// 如果數字
-	// 打印當前數字
-	// fmt.Println(num)
-
-	// 如果數字等於 8，結束循環
-	// if num == 8 {
-	// 	break
-	// }
-	// fmt.Println("循環結束")
-
-	// router.Use(BasicAuth)
-
-	// authorized := router.Group("/", BasicAuth)
-
-	// authorized.GET("/welcome", func(c *gin.Context) {
-	// 	c.JSON(http.StatusOK, gin.H{
-	// 		"message": "welcome to middleware",
-	// 	})
-	// })
-
-	// router.POST("/api/company", wrapper)
-	// router.POST("/api/people", addPeople)
-	// router.GET("/api/list", checkList)
-	// router.PUT("/api/update", updatePeople)
-	// router.GET("/api/active", activeCheck)
-	// router.GET("/api/batch_active", activeBatchCheck)
-
+	delivery.InitRouter(router)
 	err := router.Run(":8080")
 	if err != nil {
 		log.Fatal("Failed to start the server: ", err)
 	}
 }
+
+// func InitRouter(engine *gin.Engine) {
+// 	engine.Use(
+// 		cors.New(cors.Config{
+// 			AllowOrigins:     []string{"*"},
+// 			AllowMethods:     []string{"GET", "POST", "PUT", "OPTIONS"},
+// 			AllowHeaders:     []string{"Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "accept", "origin", "Cache-Control", "X-Requested-With", "X-Forwarded-For"},
+// 			AllowCredentials: true,
+// 			MaxAge:           12 * time.Hour,
+// 		}),
+// 	)
+// }
 
 // func listPeople(c *gin.Context) {
 // 	name := c.Query("name")
@@ -275,79 +126,6 @@ func main() {
 //		log.Printf("EndPoint URL is %v", c.Request.URL)
 //	}
 //
-
-// 批次公司 is_active 確認 把沒有 ａctive 的印出
-func activeBatchCheck(c *gin.Context) {
-	var params struct {
-		Company []model.Company `json:"companies" binding:"required"`
-	}
-
-	var num map[string]int
-	num = make(map[string]int)
-	num["one"] = 1  //賦值
-	num["ten"] = 10 //賦值
-	num["three"] = 3
-
-	err := c.BindJSON(&params)
-	if err != nil {
-		response.FailResponse(c, http.StatusBadRequest, err, "failed to bind JSON")
-		return
-	}
-
-	company, err := handler.BatchCompanyHandler(params.Company)
-	if err != nil {
-		response.FailResponse(c, http.StatusNotFound, err, "company not found")
-		return
-	}
-
-	results := batchCheckActive(company)
-
-	response.SuccResponse(c, http.StatusOK, results, num)
-	return
-}
-
-// 使用 map 判斷此公司有沒有 active, 用名字先撈出 然後判斷是否是 active
-func activeCheck(c *gin.Context) {
-	var params struct {
-		Name string `form:"name" binding:"required"`
-	}
-
-	err := c.BindQuery(&params)
-	if err != nil {
-		response.FailResponse(c, http.StatusBadRequest, err, "failed to bind JSON")
-		return
-	}
-
-	company, err := handler.TestHandler(params.Name)
-	if err != nil {
-		response.FailResponse(c, http.StatusNotFound, err, "company not found")
-		return
-	}
-
-	if !checkActive(company) {
-		response.FailResponse(c, http.StatusNotFound, err, "company not active")
-		return
-	}
-
-	response.SuccResponse(c, http.StatusOK, company, nil)
-	return
-}
-
-func batchCheckActive(company []model.Company) (name []map[string]string) {
-	for _, eachCompany := range company {
-		if eachCompany.IsActive != 1 {
-			name = append(name, map[string]string{
-				"CODE": eachCompany.Code,
-				"NAME": eachCompany.Name,
-			})
-		}
-	}
-	return
-}
-
-func checkActive(company *model.Company) bool {
-	return company.IsActive == 1
-}
 
 type AddCompanyRequest struct {
 	Code        string `json:"code"`
